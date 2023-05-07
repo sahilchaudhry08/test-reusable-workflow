@@ -63,11 +63,11 @@ jobs:
     needs: terraform-plan
     environment: ${{ inputs.APPROVAL_ENV }}
 
-    permissions:
-      id-token: write
-      contents: read
-      pull-requests: write
-      issues: write
+#     permissions:
+#       id-token: write
+#       contents: read
+#       pull-requests: write
+#       issues: write
 
     defaults:
       run:
