@@ -33,11 +33,11 @@ jobs:
     name: 'Terraform Plan'
     runs-on: ${{ inputs.GH_RUNNER }}
 
-    permissions:
-      id-token: write
-      contents: read
-      pull-requests: write
-      issues: write
+#     permissions:
+#       id-token: write
+#       contents: read
+#       pull-requests: write
+#       issues: write
 
     defaults:
       run:
