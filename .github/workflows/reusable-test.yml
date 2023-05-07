@@ -1,0 +1,82 @@
+name: terraform-plan-apply-automation
+on:
+  workflow_call:
+    inputs:
+      GH_RUNNER:
+        description: 'Runner for the action to run on'
+        required: false
+        default: ubuntu-latest
+        type: string
+      GH_ARTIFACT_RETENTION_DAYS:
+        description: 'Retention time in days to keep the tf plan output artifact'
+        required: false
+        default: 1
+        type: number
+      TF_VERSION:
+        description: 'version of Terraform CLI to install, you can also specify a constraint string. e.g. <1.2.0, ~1.1.0, 1.1.7'
+        required: true
+        type: string
+        default: 1.0.0
+      WORKING_DIRECTORY:
+        description: 'Specifies the working directory'
+        required: false
+        default: ./
+        type: string
+      APPROVAL_ENV:
+        description: 'The Github environment for approvals'
+        required: true
+        type: string
+        default: dev
+        
+jobs:
+  terraform-plan:
+    name: 'Terraform Plan'
+    runs-on: ${{ inputs.GH_RUNNER }}
+
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+      issues: write
+
+    defaults:
+      run:
+        working-directory: ${{ inputs.WORKING_DIRECTORY }}
+
+    steps:
+      - uses: actions/checkout@v3
+          
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ inputs.TF_VERSION }}
+      
+      - name: Print Terraform version
+        run:
+          terraform --version
+          
+          
+  terraform-apply:
+    name: 'Terraform Apply'
+    if: (github.event_name == ‘push’ && github.event.pull_request.merged == true)  || github.event_name == 'workflow_dispatch'
+    runs-on: ${{ inputs.GH_RUNNER }}
+    needs: terraform-plan
+    environment: ${{ inputs.APPROVAL_ENV }}
+
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+      issues: write
+
+    defaults:
+      run:
+        working-directory: ${{ inputs.WORKING_DIRECTORY }}
+
+    steps:
+      - uses: actions/checkout@v3
+          
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ inputs.TF_VERSION }}
