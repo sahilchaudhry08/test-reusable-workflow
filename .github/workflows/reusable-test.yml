@@ -55,6 +55,11 @@ jobs:
         run:
           terraform --version
           
+      - name: Terraform version print
+        if: ${{ github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch' }}
+        run:
+          terraform --version
+          
           
   terraform-apply:
     name: 'Terraform Apply'
